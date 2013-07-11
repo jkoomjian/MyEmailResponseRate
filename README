@@ -1,0 +1,11 @@
+Analyze your proficiency at responding to emails.
+
+Requirements:
+* Ruby
+* MongoDB - sudo apt-get mongodb
+* Enable imap in your gmail account (https://support.google.com/mail/troubleshooter/1668960?hl=en)
+
+To Run:
+* $ruby email2db.rb <gmail_username> <gmail_password>
+* $ruby db2data.rb > data.js
+* open your browser to index.html

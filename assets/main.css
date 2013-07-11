@@ -1,0 +1,55 @@
+.color_red {color: #bd362f;}
+.color_blue {color: #0044cc;}
+.color_green {color: #51a351;}
+
+.h4 {font-size: 17.5px; font-weight: bold; color: #51a351;}
+
+.td {display: inline-block; width: 48%;}
+
+.footer a {display: block;}
+
+fieldset {margin-bottom: 25px;}
+.key {display: inline-block; width: 30%;}
+.key_color {display: inline-block; width: 1em; height: 1em;}
+.key_text {display: inline-block;}
+
+#chart1_container {width: 1160px; overflow: hidden; position: relative; left: -230px;}
+#chart3_container {position: relative; left: -135px;}
+
+/*--------- Default Template ------------*/
+body {
+padding-top: 20px;
+padding-bottom: 40px;
+background-color: #FAFAFA;
+}
+
+/* Custom container */
+.container-narrow {
+margin: 0 auto;
+max-width: 700px;
+}
+.container-narrow > hr {
+margin: 30px 0;
+}
+
+/* Main marketing message and sign up button */
+.jumbotron {
+margin: 40px 0;
+text-align: center;
+}
+.jumbotron h1 {
+font-size: 55px;
+line-height: 1;
+}
+.jumbotron .btn {
+font-size: 21px;
+padding: 14px 24px;
+}
+
+/* Supporting marketing content */
+.marketing {
+margin: 60px 0;
+}
+.marketing p + h4 {
+margin-top: 28px;
+}

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>My Email Response Rate</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le styles -->
+    <link href="assets/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <style type="text/css">
+    </style>
+    <link href="assets/main.css" rel="stylesheet">
+    <link href="assets/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+
+    <!-- load the page js files -->
+    <script src="assets/jquery.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/Chart.min.js"></script>
+    <script src="assets/main.js"></script>
+    <script src="data.js"></script>
+  </head>
+
+  <body>
+
+    <div class="container-narrow">
+
+      <div class="jumbotron">
+        <h1>My Email Response Rate</h1>
+        <p class="lead">We all feel overwhelmed by email, but just how bad is it? Are you less diligent responding to email than your peers? This app attempts to provide some insight into how your email responsiveness compares.</p>
+      </div>
+
+      <hr>
+      <blockquote>
+        Editors Note: The below data is real, collected from the emails I sent and received over 1 year at my previous job.
+        I've changed the email addresses to avoid publicly displaying real email addresses.
+        You can run this program on your own email account by following the directions on the project's github page: <a href='https://github.com/jkoomjian'>github.com/jkoomjian</a>.
+      </blockquote>
+      <hr>
+
+      <div class="row-fluid">
+        <div class="span12">
+
+          <h4>How Bad Is It?</h4>
+          <div id="chart1_container">
+            <canvas id="chart1" width="1400" height="400"></canvas>
+          </div>
+
+          <fieldset>
+            <legend>Legend</legend>
+            <div class='key'>
+              <div class='key_color' style='background-color: rgb(133,215,224)'></div>
+              <div class='key_text'># Incoming Emails per Day</div>
+            </div>
+            <div class='key'>
+              <div class='key_color' style='background-color: rgb(194,224,133)'></div>
+              <div class='key_text'># Outgoing Emails per Day</div>
+            </div>
+          </fieldset>
+
+          <p>Each day you receive an average of
+            <span id='daily_incoming_emails' class='color_green h4'>12</span> incoming emails
+            and send
+            <span id='daily_outgoing_emails' class='color_green h4'>3</span> outgoing emails.
+          </p>
+          <div>
+            <div class='td'>You're receiving:</div>
+            <div class='td'>
+              <span id='percent_daily_emails_received' class='color_green h4'></span>
+              <span id='percent_daily_emails_received_more_less'></span>
+              than average (15 emails/day)
+            </div>
+          </div>
+          <div>
+            <div class='td'>And sending:</div>
+            <div class='td'>
+              <span id='percent_daily_emails_sent' class='h4'>15%</span>
+              <span id='percent_daily_emails_sent_more_less'>more</span>
+              than average (2 emails/day)
+            </div>
+          </div>
+
+          <div class='marketing'></div>
+          <h4>Am I a responsive email citizen?</h4>
+          <canvas id="chart2" width="700" height="400"></canvas>
+          <fieldset>
+            <legend>Legend</legend>
+            <div class='key'>
+              <div class='key_color' style='background-color: #FF0F00'></div>
+              <div class='key_text'>responded in < 5min</div>
+            </div>
+            <div class='key'>
+              <div class='key_color' style='background-color: #FF6600'></div>
+              <div class='key_text'>responded in < 10min</div>
+            </div>
+            <div class='key'>
+              <div class='key_color' style='background-color: #FF9E01'></div>
+              <div class='key_text'>responded in < 30min</div>
+            </div>
+            <div class='key'>
+              <div class='key_color' style='background-color: #FCD202'></div>
+              <div class='key_text'>responded in < 2hr</div>
+            </div>
+            <div class='key'>
+              <div class='key_color' style='background-color: #F8FF01'></div>
+              <div class='key_text'>responded in < 6hr</div>
+            </div>
+            <div class='key'>
+              <div class='key_color' style='background-color: #B0DE09'></div>
+              <div class='key_text'>responded in < 1 day</div>
+            </div>
+            <div class='key'>
+              <div class='key_color' style='background-color: #04D215'></div>
+              <div class='key_text'>responded in < 3 days</div>
+            </div>
+            <div class='key'>
+              <div class='key_color' style='background-color: #0D8ECF'></div>
+              <div class='key_text'>responded in < 1 week</div>
+            </div>
+            <div class='key'>
+              <div class='key_color' style='background-color: #2A0CD0'></div>
+              <div class='key_text'>responded in +1 week</div>
+            </div>
+          </fieldset>
+
+          <p>You're average response time is <span id='ave_response_time' class='h4'>3</span> minutes.</p>
+          <p>That's <span id='percent_ave_response_time' class='h4'>15%</span> faster than average.
+            The global average email response time is 60 hours!</p>
+
+          <div class='marketing'></div>
+          <h4>Who are my friends?</h4>
+          <p>According to researchers, we respond fastest to people we like.
+            So who does your email say are you like?
+            And how often do you correspond with people you don't like?
+          </p>
+          <p>
+            The graph is ordered shortest response time first, and the vertical axis is # email responses.
+            If most of the graph area is to the left, you're primarily emailing with people you like.
+            If most of the graph area is to the right, you're emailing people you don't like :(
+          </p>
+          <div id='chart3_container'>
+            <canvas id="chart3" width="1000" height="400"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="footer">
+        <blockquote>
+          The stats quoted in this article come from 
+          <a href='http://techcrunch.com/2013/01/02/too-much-email-please-stop-now/'>
+            techcrunch.com/2013/01/02/too-much-email-please-stop-now/
+          </a>
+          and
+          <a href='http://lifehacker.com/5868198/email-study-suggests-you-should-spend-the-most-time-on-emails-you-respond-to-within-11-hours'>
+            lifehacker.com/5868198/email-study-suggests-you-should-spend-the-most-time-on-emails-you-respond-to-within-11-hours
+          </a>
+        </blockquote>
+      </div>
+
+    </div> <!-- /container -->
+
+    <script type='text/javascript'>
+      $(document).ready(function() {run();});
+    </script>
+
+  </body>
+</html>
