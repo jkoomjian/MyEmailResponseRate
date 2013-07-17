@@ -39,7 +39,7 @@ def chart1
 		curr_dt_fmt = curr_dt.strftime('%d-%b-%Y')
 		labels << (curr_dt.day == 1 ? curr_dt.strftime('%b %Y') : '')
 		data_incoming << $coll.find({"internaldate" => Regexp.new(curr_dt_fmt), "is_reply" => false}).count()
-		data_outgoing << $coll.find({"internaldate" => Regexp.new(curr_dt_fmt), "is_reply" => true, "from" => "jonathan@rover.com"}).count()
+		data_outgoing << $coll.find({"internaldate" => Regexp.new(curr_dt_fmt), "is_reply" => true, "from" => SOURCE_USER}).count()
 		curr_dt += 1
 	end
 
@@ -95,7 +95,7 @@ def chart2
 	num_5_min = num_10_min = num_30_min = num_2_hr = num_6_hr = num_1_day = num_3_day = num_1_week = more = 0
 
 
-	$coll.find({"is_reply" => true, "from" => "jonathan@rover.com"}, :fields => ["in_reply_to", "internaldate"]).each{|row|
+	$coll.find({"is_reply" => true, "from" => SOURCE_USER}, :fields => ["in_reply_to", "internaldate"]).each{|row|
 		orig_id = row['in_reply_to']
 		reply_msg_time = row['internaldate']
 		# get the original message
@@ -157,7 +157,7 @@ def chart3
 	all_recipts = {}
 
 	# For each reply message, get the response time and add it to the recipients buckets
-	$coll.find({"is_reply" => true, "from" => "jonathan@rover.com"}, :fields => ["to", "in_reply_to", "internaldate"]).each{|reply|
+	$coll.find({"is_reply" => true, "from" => SOURCE_USER}, :fields => ["to", "in_reply_to", "internaldate"]).each{|reply|
 		# get the original message
 		orig = $coll.find_one({"message_id" => reply['in_reply_to']}, :fields => ["internaldate"])
 		if orig
@@ -195,4 +195,11 @@ def chart3
 	puts "data3['datasets'][0]['data'] = #{data};"
 end
 
+## Setup
+if ARGV.length < 1
+  puts "Usage: ruby db2js.rb gmail_username"
+  exit
+end
+
+SOURCE_USER = ARGV[0]
 run()
