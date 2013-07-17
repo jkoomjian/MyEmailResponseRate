@@ -7,5 +7,5 @@ Requirements:
 
 To Run:
 * $ruby email2db.rb <gmail_username> <gmail_password>
-* $ruby db2data.rb > data.js
+* $ruby db2data.rb <gmail_username> > data.js
 * open your browser to index.html
