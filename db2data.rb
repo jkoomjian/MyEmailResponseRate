@@ -2,10 +2,9 @@ require 'mongo'
 include Mongo
 require 'date'
 
+# Modify Here
 $start_dt = Date.new(2012, 6, 1)
 $end_dt = Date.new(2013, 5, 31)
-# $start_dt = Date.new(2013, 3, 1)
-# $end_dt = Date.new(2013, 5, 31)
 
 
 #------- Utilities --------#
@@ -72,7 +71,7 @@ def chart1
 	puts "template_vars['percent_daily_emails_received'] = '#{pct}%';"
 	puts "template_vars['percent_daily_emails_received_more_less'] = '#{more_less}';"
 	if outgoing_ave > global_ave_outgoing
-		pct = ((outgoing_ave.to_f / global_ave_outgoing) * 100).to_i
+		pct = ((outgoing_ave.to_f / global_ave_outgoing - 1) * 100).to_i
 		more_less = 'more'
 	else
 		pct = ((1 - outgoing_ave.to_f / global_ave_outgoing) * 100).to_i
@@ -147,6 +146,32 @@ def chart2
 	puts "data2[6] = {value: #{num_3_day}, color: '#04D215'};"
 	puts "data2[7] = {value: #{num_1_week}, color: '#0D8ECF'};"
 	puts "data2[8] = {value: #{more}, color: '#2A0CD0'};"
+
+	# now get the peer response time
+	peer_total_response_time = 0
+	peer_num_responses = 0
+	$coll.find({"is_reply" => true, "from" => {"$ne" => SOURCE_USER}}, :fields => ["in_reply_to", "internaldate"]).each{|reply|
+		orig = $coll.find_one({"message_id" => reply['in_reply_to']}, :fields => ["internaldate"])
+		if orig
+			response_time = get_response_time(reply['internaldate'], orig['internaldate'])
+			peer_num_responses += 1
+			peer_total_response_time += response_time
+		end
+	}
+	peer_ave_response_time = ((peer_total_response_time.to_f / peer_num_responses) / 60).to_i
+	puts "template_vars['peer_ave_response_time'] = #{peer_ave_response_time};"
+
+	pct = 0
+	slower_faster = ''
+	if ave_response_time > peer_ave_response_time
+		pct = ((ave_response_time.to_f / peer_ave_response_time - 1) * 100).to_i
+		slower_faster = 'slower'
+	else
+		pct = ((1 - ave_response_time.to_f / peer_ave_response_time) * 100).to_i
+		slower_faster = 'faster'
+	end
+	puts "template_vars['percent_peer_average_response_time'] = '#{pct}%';"
+	puts "template_vars['slower_faster_peer_average_response_time'] = '#{slower_faster}';"
 end
 
 def chart3
