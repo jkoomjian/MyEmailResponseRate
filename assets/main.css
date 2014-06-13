@@ -13,7 +13,7 @@ fieldset {margin-bottom: 25px;}
 .key_color {display: inline-block; width: 1em; height: 1em;}
 .key_text {display: inline-block;}
 
-#chart1_container {width: 1160px; overflow: hidden; position: relative; left: -230px;}
+#chart1_container {width: 1400px; position: relative; left: -350px;}
 #chart3_container {position: relative; left: -135px;}
 
 /*--------- Default Template ------------*/

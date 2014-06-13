@@ -96,6 +96,7 @@ def chart2
 
 	# buckets
 	num_5_min = num_10_min = num_30_min = num_2_hr = num_6_hr = num_1_day = num_3_day = num_1_week = more = 0
+	response_times = []
 
 	$coll.find({"is_reply" => true, "from" => SOURCE_USER}, :fields => ["in_reply_to", "internaldate"]).each{|row|
 		
@@ -139,6 +140,7 @@ def chart2
 
 				num_responses += 1
 				total_response_time += response_time
+				response_times << response_time
 			end
 		end
 	}
@@ -147,6 +149,11 @@ def chart2
 	ave_response_time = num_responses.zero? ? 0 : ((total_response_time.to_f / num_responses) / 60 / 60).round(2)
 	puts "template_vars['ave_response_time'] = #{ave_response_time};"
 
+	#median response time
+	response_times.sort!
+	median_response_time = response_times[ (response_times.length / 2).to_i ]
+	puts "template_vars['median_response_time'] = #{median_response_time / 60 / 60};"
+	
 	global_response_time = 60
 	pct = ((1 - ave_response_time.to_f / global_response_time) * 100).to_i
 	puts "template_vars['percent_ave_response_time'] = '#{pct}%';"
@@ -232,7 +239,7 @@ def chart3
 			next
 		end
 
-		ave_response_time = ((total_response_time.to_f / num_emails) / 60 / 60).round(2)
+		ave_response_time = ((total_response_time.to_f / num_emails) / 60 / 60).to_i
 		labels << "#{addr} (#{ave_response_time}hr)"
 		data << num_emails
 	}
