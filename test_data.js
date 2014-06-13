@@ -1,3 +1,6 @@
+template_vars['total_incoming_emails'] = 0;
+template_vars['total_outgoing_emails'] = 0;
+
 template_vars['daily_incoming_emails'] = 0;
 template_vars['daily_outgoing_emails'] = 0;
 template_vars['percent_daily_emails_received'] = 0;

@@ -16,7 +16,7 @@ var data1 = {
 		}
 	]
 };
-var options1 = {scaleOverride: true, scaleSteps : 10, scaleStepWidth: 5, scaleStartValue: 0, scaleShowLabels: true, pointDot: false, animationSteps: 120, datasetStrokeWidth: 3, scaleShowGridLines:false};
+var options1 = {scaleOverride: true, scaleSteps : 10, scaleStepWidth: 2, scaleStartValue: 0, scaleShowLabels: true, pointDot: false, animationSteps: 120, datasetStrokeWidth: 3, scaleShowGridLines:false};
 
 var data2 = [];
 var options2 = {animateScale: true, animationSteps: 200}

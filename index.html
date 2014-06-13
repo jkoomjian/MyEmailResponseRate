@@ -33,8 +33,6 @@
 
       <hr>
       <blockquote>
-        Editors Note: The below data is real, collected from the emails I sent and received over 1 year at my previous job.
-        I've changed the email addresses to avoid publicly displaying real email addresses.
         You can run this program on your own email account by following the directions on the project's github page: <a href='https://github.com/jkoomjian'>github.com/jkoomjian</a>.
       </blockquote>
       <hr>
@@ -59,6 +57,11 @@
             </div>
           </fieldset>
 
+          <p>Over the past month you have received 
+            <span id='total_incoming_emails' class='color_green h4'>12</span> incoming emails
+            and sent
+            <span id='total_outgoing_emails' class='color_green h4'>3</span> outgoing emails.
+          </p>
           <p>Each day you receive an average of
             <span id='daily_incoming_emails' class='color_green h4'>12</span> incoming emails
             and send
@@ -87,46 +90,46 @@
           <fieldset>
             <legend>Legend</legend>
             <div class='key'>
-              <div class='key_color' style='background-color: #FF0F00'></div>
+              <div class='key_color' style='background-color: #ffffcc'></div>
               <div class='key_text'>responded in < 5min</div>
             </div>
             <div class='key'>
-              <div class='key_color' style='background-color: #FF6600'></div>
+              <div class='key_color' style='background-color: #ffeda0'></div>
               <div class='key_text'>responded in < 10min</div>
             </div>
             <div class='key'>
-              <div class='key_color' style='background-color: #FF9E01'></div>
+              <div class='key_color' style='background-color: #fed976'></div>
               <div class='key_text'>responded in < 30min</div>
             </div>
             <div class='key'>
-              <div class='key_color' style='background-color: #FCD202'></div>
+              <div class='key_color' style='background-color: #feb24c'></div>
               <div class='key_text'>responded in < 2hr</div>
             </div>
             <div class='key'>
-              <div class='key_color' style='background-color: #F8FF01'></div>
+              <div class='key_color' style='background-color: #fd8d3c'></div>
               <div class='key_text'>responded in < 6hr</div>
             </div>
             <div class='key'>
-              <div class='key_color' style='background-color: #B0DE09'></div>
+              <div class='key_color' style='background-color: #fc4e2a'></div>
               <div class='key_text'>responded in < 1 day</div>
             </div>
             <div class='key'>
-              <div class='key_color' style='background-color: #04D215'></div>
+              <div class='key_color' style='background-color: #e31a1c'></div>
               <div class='key_text'>responded in < 3 days</div>
             </div>
             <div class='key'>
-              <div class='key_color' style='background-color: #0D8ECF'></div>
+              <div class='key_color' style='background-color: #bd0026'></div>
               <div class='key_text'>responded in < 1 week</div>
             </div>
             <div class='key'>
-              <div class='key_color' style='background-color: #2A0CD0'></div>
+              <div class='key_color' style='background-color: #800026'></div>
               <div class='key_text'>responded in +1 week</div>
             </div>
           </fieldset>
 
-          <p>Your average response time is <span id='ave_response_time' class='h4'></span> minutes.</p>
+          <p>Your average response time is <span id='ave_response_time' class='h4'></span> hours.</p>
 	  <p>
-		The people you email have an average response time of <span id='peer_ave_response_time' class='h4'></span> minutes.
+		The people you email have an average response time of <span id='peer_ave_response_time' class='h4'></span> hours.
 		You are <span id='percent_peer_average_response_time' class='h4'></span>
 		<span id='slower_faster_peer_average_response_time'><span> than them.
 	  </p>

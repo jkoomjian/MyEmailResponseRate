@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'net/imap'
 require 'mongo'
+require 'date'
 include Mongo
 
 ############################################
@@ -17,6 +18,12 @@ SOURCE_SSL  = true
 
 # Get all messages
 FOLDER = '[Gmail]/All Mail'
+
+# By default get all messages from the last month
+$date_end = (DateTime.now + 1).strftime("%-d-%b-%Y")
+# end date should be much longer than 1 mo. If a user responded to an old email
+# that email should be in the db
+$date_start = (DateTime.now - 51).strftime("%-d-%b-%Y")
 
 # Maximum number of messages to select at once.
 UID_BLOCK_SIZE = 1024
@@ -43,6 +50,8 @@ def init_mongo
   # connect, will create db, collection if they don't exist
   $db = MongoClient.new("localhost", 27017).db("my_email_response_rate")
   $coll = $db.collection("email_collection")
+  #clean the database
+  $coll.drop()
 end
 
 def insert_msg(jsmsg)
@@ -94,10 +103,10 @@ def msg_to_json(msg)
 end
 
 def run()
-  puts 'Connecting...'
+  # puts 'Connecting...'
   source = Net::IMAP.new(SOURCE_HOST, SOURCE_PORT, SOURCE_SSL)
 
-  puts 'Logging in...'
+  # puts 'Logging in...'
   source.login(SOURCE_USER, SOURCE_PASS)
 
   # Open All Mail folder in read-only mode.
@@ -108,19 +117,23 @@ def run()
   end
 
   # Loop through all messages in the source folder.
-  uids = source.uid_search(['ALL'])
-  puts "Found #{uids.length} messages"
+  #uids = source.uid_search(['ALL'])
+  uids = source.uid_search(['SINCE', $date_start, 'BEFORE', $date_end])
+
+
+  # puts "Found #{uids.length} messages"
 
   if uids.length > 0
     uid_fetch_block(source, uids, ['UID', 'ENVELOPE', 'FLAGS', 'INTERNALDATE']) do |msg|
-      puts msg.seqno
+      # puts msg.seqno
+      # puts msg_to_json(msg)
       insert_msg( msg_to_json(msg) )
       $synced += 1
     end
   end
 
   source.close
-  puts "Finished. Message counts: #{$synced} copied to db"
+  # puts "Finished. Message counts: #{$synced} copied to db"
 end
 
 ## Setup

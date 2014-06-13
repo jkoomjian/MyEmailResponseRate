@@ -3,8 +3,8 @@ include Mongo
 require 'date'
 
 # Modify Here
-$start_dt = Date.new(2012, 6, 1)
-$end_dt = Date.new(2013, 5, 31)
+$start_dt = (DateTime.now - 31)
+$end_dt = (DateTime.now + 1)
 
 
 #------- Utilities --------#
@@ -19,6 +19,7 @@ def get_response_time(reply_time_str, orig_time_str)
 	return ((reply_msg_time - orig_msg_time).to_f * (24 * 60 * 60)).to_i
 end
 
+#------- Run --------#
 def run
   # connect, will create db, collection if they don't exist
   $db = MongoClient.new("localhost", 27017).db("my_email_response_rate")
@@ -36,9 +37,10 @@ def chart1
 	curr_dt = $start_dt
 	while curr_dt <= $end_dt
 		curr_dt_fmt = curr_dt.strftime('%d-%b-%Y')
-		labels << (curr_dt.day == 1 ? curr_dt.strftime('%b %Y') : '')
-		data_incoming << $coll.find({"internaldate" => Regexp.new(curr_dt_fmt), "is_reply" => false}).count()
-		data_outgoing << $coll.find({"internaldate" => Regexp.new(curr_dt_fmt), "is_reply" => true, "from" => SOURCE_USER}).count()
+		#labels << (curr_dt.day == 1 ? curr_dt.strftime('%b %Y') : '')
+		labels << curr_dt.strftime('%d/%b/%Y')
+		data_incoming << $coll.find({"internaldate" => Regexp.new(curr_dt_fmt), "from" => {"$ne" => SOURCE_USER}}).count()
+		data_outgoing << $coll.find({"internaldate" => Regexp.new(curr_dt_fmt), "from" => SOURCE_USER}).count()
 		curr_dt += 1
 	end
 
@@ -47,12 +49,15 @@ def chart1
 	puts "data1['datasets'][1]['data'] = #{data_outgoing};"
 
 	incoming_total = outgoing_total = 0
-	total_days = ($end_dt - $start_dt).to_i + 1
+	total_days = ($end_dt - $start_dt).to_i
 	data_incoming.each { |e| incoming_total += e }
 	data_outgoing.each { |e| outgoing_total += e }
 
-	incoming_ave = (incoming_total.to_f / total_days).to_i
+	incoming_ave = (incoming_total.to_f / total_days).round(2)
 	outgoing_ave = (outgoing_total.to_f / total_days).round(2)
+
+	puts "template_vars['total_incoming_emails'] = #{incoming_total};"
+	puts "template_vars['total_outgoing_emails'] = #{outgoing_total};"
 
 	puts "template_vars['daily_incoming_emails'] = #{incoming_ave};"
 	puts "template_vars['daily_outgoing_emails'] = #{outgoing_ave};"
@@ -89,63 +94,72 @@ def chart2
 	num_responses = 0
 	total_response_time = 0
 
-
 	# buckets
 	num_5_min = num_10_min = num_30_min = num_2_hr = num_6_hr = num_1_day = num_3_day = num_1_week = more = 0
 
-
 	$coll.find({"is_reply" => true, "from" => SOURCE_USER}, :fields => ["in_reply_to", "internaldate"]).each{|row|
-		orig_id = row['in_reply_to']
+		
+		# verify response is in the right date range
 		reply_msg_time = row['internaldate']
-		# get the original message
-		row = $coll.find_one({"message_id" => orig_id}, :fields => ["internaldate"])
-		if row
-			orig_msg_time = row['internaldate']
+		reply_msg_time_dt = parse_internaldatetime(reply_msg_time)
+		# puts "dates #{reply_msg_time_dt} #{$start_dt}"
+		if reply_msg_time_dt >= $start_dt
 
-			response_time = get_response_time(reply_msg_time, orig_msg_time)
-			# puts response_time
+			# puts "processing response"
+			orig_id = row['in_reply_to']
+			# get the original message
+			row = $coll.find_one({"message_id" => orig_id}, :fields => ["internaldate"])
+			# puts "orig_id #{orig_id}, reply_msg_time #{reply_msg_time}"
+			if row
+				orig_msg_time = row['internaldate']
 
-			if response_time <= (5 * 60)
-				num_5_min += 1
-			elsif response_time <= (10 * 60)
-				num_10_min += 1
-			elsif response_time <= (30 * 60)
-				num_30_min += 1
-			elsif response_time <= (2 * 60 * 60)
-				num_2_hr += 1
-			elsif response_time <= (6 * 60 * 60)
-				num_6_hr += 1
-			elsif response_time <= (24 * 60 * 60)
-				num_1_day += 1
-			elsif response_time <= (3 * 24 * 60 * 60)
-				num_3_day += 1
-			elsif response_time <= (7 * 24 * 60 * 60)
-				num_1_week += 1
-			else
-				more += 1
+				# puts "reply_msg_time #{reply_msg_time} orig_msg_time #{orig_msg_time}"
+				response_time = get_response_time(reply_msg_time, orig_msg_time)
+				# puts response_time
+
+				if response_time <= (5 * 60)
+					num_5_min += 1
+				elsif response_time <= (10 * 60)
+					num_10_min += 1
+				elsif response_time <= (30 * 60)
+					num_30_min += 1
+				elsif response_time <= (2 * 60 * 60)
+					num_2_hr += 1
+				elsif response_time <= (6 * 60 * 60)
+					num_6_hr += 1
+				elsif response_time <= (24 * 60 * 60)
+					num_1_day += 1
+				elsif response_time <= (3 * 24 * 60 * 60)
+					num_3_day += 1
+				elsif response_time <= (7 * 24 * 60 * 60)
+					num_1_week += 1
+				else
+					more += 1
+				end
+
+				num_responses += 1
+				total_response_time += response_time
 			end
-
-			num_responses += 1
-			total_response_time += response_time
 		end
 	}
 
-	ave_response_time = ((total_response_time.to_f / num_responses) / 60).to_i
+	# puts "total_response_time #{total_response_time} num_responses #{num_responses}"
+	ave_response_time = num_responses.zero? ? 0 : ((total_response_time.to_f / num_responses) / 60 / 60).round(2)
 	puts "template_vars['ave_response_time'] = #{ave_response_time};"
 
-	global_response_time = 60 * 60
+	global_response_time = 60
 	pct = ((1 - ave_response_time.to_f / global_response_time) * 100).to_i
 	puts "template_vars['percent_ave_response_time'] = '#{pct}%';"
 
-	puts "data2[0] = {value: #{num_5_min}, color: '#FF0F00'};"
-	puts "data2[1] = {value: #{num_10_min}, color: '#FF6600'};"
-	puts "data2[2] = {value: #{num_30_min}, color: '#FF9E01'};"
-	puts "data2[3] = {value: #{num_2_hr}, color: '#FCD202'};"
-	puts "data2[4] = {value: #{num_6_hr}, color: '#F8FF01'};"
-	puts "data2[5] = {value: #{num_1_day}, color: '#B0DE09'};"
-	puts "data2[6] = {value: #{num_3_day}, color: '#04D215'};"
-	puts "data2[7] = {value: #{num_1_week}, color: '#0D8ECF'};"
-	puts "data2[8] = {value: #{more}, color: '#2A0CD0'};"
+	puts "data2[0] = {value: #{num_5_min}, color: '#ffffcc'};"
+	puts "data2[1] = {value: #{num_10_min}, color: '#ffeda0'};"
+	puts "data2[2] = {value: #{num_30_min}, color: '#fed976'};"
+	puts "data2[3] = {value: #{num_2_hr}, color: '#feb24c'};"
+	puts "data2[4] = {value: #{num_6_hr}, color: '#fd8d3c'};"
+	puts "data2[5] = {value: #{num_1_day}, color: '#fc4e2a'};"
+	puts "data2[6] = {value: #{num_3_day}, color: '#e31a1c'};"
+	puts "data2[7] = {value: #{num_1_week}, color: '#bd0026'};"
+	puts "data2[8] = {value: #{more}, color: '#800026'};"
 
 	# now get the peer response time
 	peer_total_response_time = 0
@@ -158,7 +172,7 @@ def chart2
 			peer_total_response_time += response_time
 		end
 	}
-	peer_ave_response_time = ((peer_total_response_time.to_f / peer_num_responses) / 60).to_i
+	peer_ave_response_time = ((peer_total_response_time.to_f / peer_num_responses) / 60 / 60).round(2)
 	puts "template_vars['peer_ave_response_time'] = #{peer_ave_response_time};"
 
 	pct = 0
@@ -183,20 +197,27 @@ def chart3
 
 	# For each reply message, get the response time and add it to the recipients buckets
 	$coll.find({"is_reply" => true, "from" => SOURCE_USER}, :fields => ["to", "in_reply_to", "internaldate"]).each{|reply|
-		# get the original message
-		orig = $coll.find_one({"message_id" => reply['in_reply_to']}, :fields => ["internaldate"])
-		if orig
-			response_time = get_response_time(reply['internaldate'], orig['internaldate'])
-			# puts response_time
+		
+		# verify response is in the right date range
+		reply_msg_time_dt = parse_internaldatetime(reply['internaldate'])
+		# puts "dates #{reply_msg_time_dt} #{$start_dt}"
+		if reply_msg_time_dt >= $start_dt
 
-			reply['to'].each{|addr|
-				if all_recipts.has_key?(addr)
-					all_recipts[addr][0] += 1
-					all_recipts[addr][1] += response_time
-				else
-					all_recipts[addr] = [1, response_time]
-				end
-			}
+			# get the original message
+			orig = $coll.find_one({"message_id" => reply['in_reply_to']}, :fields => ["internaldate"])
+			if orig
+				response_time = get_response_time(reply['internaldate'], orig['internaldate'])
+				# puts response_time
+
+				reply['to'].each{|addr|
+					if all_recipts.has_key?(addr)
+						all_recipts[addr][0] += 1
+						all_recipts[addr][1] += response_time
+					else
+						all_recipts[addr] = [1, response_time]
+					end
+				}
+			end
 		end
 	}
 
@@ -211,8 +232,8 @@ def chart3
 			next
 		end
 
-		ave_response_time = ((total_response_time.to_f / num_emails) / 60).to_i
-		labels << "#{addr} (#{ave_response_time}min)"
+		ave_response_time = ((total_response_time.to_f / num_emails) / 60 / 60).round(2)
+		labels << "#{addr} (#{ave_response_time}hr)"
 		data << num_emails
 	}
 
@@ -222,7 +243,7 @@ end
 
 ## Setup
 if ARGV.length < 1
-  puts "Usage: ruby db2js.rb gmail_username"
+  puts "Usage: ruby db2data.rb gmail_username"
   exit
 end
 

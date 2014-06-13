@@ -1,11 +1,12 @@
 Analyze your proficiency at responding to emails.
+Displays the number of emails you have received and responded to in the past month.
 
 Requirements:
 * Ruby
 * MongoDB - sudo apt-get mongodb
 * Enable imap in your gmail account (https://support.google.com/mail/troubleshooter/1668960?hl=en)
+* set up a Google Apps password for your account (https://support.google.com/accounts/answer/185833)
 
 To Run:
-* $ruby email2db.rb <gmail_username> <gmail_password>
-* $ruby db2data.rb <gmail_username> > data.js
+* $ruby merr.rb <gmail_address> <gmail_password> > data.js
 * open your browser to index.html
