@@ -19,7 +19,6 @@
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="assets/Chart.min.js"></script>
     <script src="assets/main.js"></script>
-    <script src="data.js"></script>
   </head>
 
   <body>
@@ -175,7 +174,14 @@
     </div> <!-- /container -->
 
     <script type='text/javascript'>
-      $(document).ready(function() {run();});
+      $(document).ready(function() {
+        //quick and dirty, but should work
+        var results = window.location.href.match(/\?data=(.*)($|&)/);
+        var data = "data" + (results ? "_" + results[1] : "") + ".js";
+        //script loading blocks here
+        $("head").append( $("<script/>").attr("src", data) );
+        run();
+      });
     </script>
 
   </body>
