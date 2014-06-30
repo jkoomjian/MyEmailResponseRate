@@ -8,7 +8,8 @@ require 'mail'
 
 # URL where this code lives on the web server
 # (must be publically accessible)
-$merr_url = "http://www.jonathankoomjian.com/projects/merr/"
+$merr_url = "http://www.jonathankoomjian.com/projects/MyEmailResponseRate/"
+$merr_dir = File.join(File.dirname(__FILE__), '.')
 
 if ARGV.length < 4
   puts "Usage: ruby merr_email.rb gmail_username gmail_password gmail_sending_username gmail_sending_password"
@@ -21,10 +22,10 @@ $GMAIL_SENDING_USERNAME = ARGV[2]
 $GMAIL_SENDING_PASSWORD = ARGV[3]
 
 #------------- Generate Data -----------------#
-# puts `ruby email2db.rb "#{$SOURCE_USER}" #{SOURCE_PASS}`
+puts `ruby #{$merr_dir}/email2db.rb "#{$SOURCE_USER}" #{$SOURCE_PASS}`
 ## output to current dir
 time = Time.now.to_i.to_s
-puts `ruby db2data.rb #{$SOURCE_USER} > data_#{time}.js`
+puts `ruby #{$merr_dir}/db2data.rb #{$SOURCE_USER} > #{$merr_dir}/data_#{time}.js`
 
 $merr_page = $merr_url + "?data=#{time}"
 
